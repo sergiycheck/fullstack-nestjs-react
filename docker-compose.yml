@@ -1,0 +1,26 @@
+version: "3.9"
+services:
+  frontend_app:
+    build: ./my-app
+    ports:
+      - "3005:3005"
+    container_name: full_stack_frontend_app
+    restart: always
+    depends_on:
+      - backend_app
+
+  backend_app:
+    build: ./backend-webapi
+    ports:
+      - "3027:3027"
+    container_name: full_stack_backend_app
+    restart: always
+    depends_on:
+      - myapp_dabase_pg
+
+  myapp_dabase_pg:
+    build: "./database"
+    container_name: full_stack_dabase_pg
+    ports:
+      - "5432:5432"
+    restart: always
