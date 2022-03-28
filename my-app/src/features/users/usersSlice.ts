@@ -1,14 +1,8 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { createEntityAdapter } from "@reduxjs/toolkit";
-import { getUsersEndpoint } from "../../app/api-endpoints";
-import { client } from "../../app/client";
 import { RootState, AppThunk } from "../../app/store";
-
-export interface User {
-  id: string;
-  username: string;
-  created: string;
-}
+import { StatusData, User, usersSliceName } from "./types";
+import { fetchAddUserAsync, fetchUsersAsync } from "./userThunks";
 
 const usersAdapter = createEntityAdapter<User>({
   sortComparer: (u1, u2) => {
@@ -21,33 +15,30 @@ const usersAdapter = createEntityAdapter<User>({
 
 export interface UsersState {
   name: string;
-  status: "idle" | "loading" | "failed";
+  status: keyof typeof StatusData;
 }
 const initialState = usersAdapter.getInitialState<UsersState>({
-  name: "users",
-  status: "idle",
-});
-
-export const fetchUsersAsync = createAsyncThunk(`${initialState.name}/fetchUsers`, async () => {
-  const response = await client.get(getUsersEndpoint);
-  if (!Array.isArray(response)) return [];
-
-  return response;
+  name: usersSliceName,
+  status: StatusData.idle,
 });
 
 export const usersSlice = createSlice({
-  name: "users",
+  name: initialState.name,
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchUsersAsync.pending, (state) => {
-        state.status = "loading";
+        state.status = StatusData.loading;
       })
       .addCase(fetchUsersAsync.fulfilled, (state, action) => {
-        state.status = "idle";
+        state.status = StatusData.idle;
         const users: User[] = action.payload;
         usersAdapter.upsertMany(state, users);
+      })
+      .addCase(fetchAddUserAsync.fulfilled, (state, action) => {
+        const user: User = action.payload.user;
+        usersAdapter.upsertOne(state, user);
       });
   },
 });

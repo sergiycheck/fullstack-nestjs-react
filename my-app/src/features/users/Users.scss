@@ -1,0 +1,17 @@
+.users-content {
+  @media (max-width: 576px) {
+    .order-sm-max-1 {
+      order: 1 !important;
+      display: flex;
+      justify-content: flex-end;
+    }
+    .order-sm-max-2 {
+      order: 2 !important;
+    }
+  }
+
+  .link {
+    color: inherit;
+    text-decoration: inherit;
+  }
+}

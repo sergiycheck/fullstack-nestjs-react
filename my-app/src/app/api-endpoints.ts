@@ -4,4 +4,4 @@ const port = "3027";
 
 const baseEndpoint = `${protocol}://${host}:${port}`;
 
-export const getUsersEndpoint = `${baseEndpoint}/user`;
+export const usersEndpoint = `${baseEndpoint}/user`;
