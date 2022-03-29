@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  DefaultValuePipe,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -31,17 +33,42 @@ export class UserController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
+  findOne(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.userService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+  async update(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    const updatedResult = await this.userService.update(id, updateUserDto);
+    if (updatedResult.wasUpdated) {
+      return {
+        message: 'user successfully updated',
+        ...updatedResult,
+      };
+    }
+    return {
+      message: `user wasn't updated`,
+      wasUpdated: false,
+    };
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+  async remove(@Param('id', new ParseUUIDPipe()) id: string) {
+    const res = await this.userService.remove(id);
+    if (res) {
+      return {
+        message: `user was successfully deleted`,
+        wasDeleted: true,
+        id,
+      };
+    }
+    return {
+      message: `user wasn't deleted`,
+      wasDeleted: false,
+      id,
+    };
   }
 }

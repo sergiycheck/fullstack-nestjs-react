@@ -2,7 +2,12 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { createEntityAdapter } from "@reduxjs/toolkit";
 import { RootState, AppThunk } from "../../app/store";
 import { StatusData, User, usersSliceName } from "./types";
-import { fetchAddUserAsync, fetchUsersAsync } from "./userThunks";
+import {
+  fetchAddUserAsync,
+  fetchUpdateUsersAsync,
+  fetchUsersAsync,
+  fetchDeleteUsersAsync,
+} from "./userThunks";
 
 const usersAdapter = createEntityAdapter<User>({
   sortComparer: (u1, u2) => {
@@ -27,6 +32,7 @@ export const usersSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
+    //TODO: check whether the response is valid
     builder
       .addCase(fetchUsersAsync.pending, (state) => {
         state.status = StatusData.loading;
@@ -39,6 +45,16 @@ export const usersSlice = createSlice({
       .addCase(fetchAddUserAsync.fulfilled, (state, action) => {
         const user: User = action.payload.user;
         usersAdapter.upsertOne(state, user);
+      })
+      .addCase(fetchUpdateUsersAsync.fulfilled, (state, action) => {
+        if (!action.payload.wasUpdated) return;
+        const updatedUser = action.payload.user;
+        usersAdapter.updateOne(state, { id: updatedUser.id, changes: { ...updatedUser } });
+      })
+      .addCase(fetchDeleteUsersAsync.fulfilled, (state, action) => {
+        if (!action.payload.wasDeleted) return;
+        const deletedUserId = action.payload.id;
+        usersAdapter.removeOne(state, deletedUserId);
       });
   },
 });

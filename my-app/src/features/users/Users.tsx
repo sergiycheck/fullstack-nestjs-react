@@ -37,10 +37,17 @@ export const UserExcerpt = ({ userId }: userExcerptProps) => {
   const user = useAppSelector((state) => selectUserById(state, userId));
 
   return (
-    <Row>
+    <Row className="mb-1">
       <Col>Username: {user?.username}</Col>
       <Col>
         created: <TimeAgo timeStamp={user?.created}></TimeAgo>
+      </Col>
+      <Col>
+        <Button variant="outline-secondary">
+          <Link className="link" to={`users/editUser/${user?.id}`}>
+            edit user
+          </Link>
+        </Button>
       </Col>
     </Row>
   );

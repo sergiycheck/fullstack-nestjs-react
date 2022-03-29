@@ -15,12 +15,16 @@ export class UserService {
     return this.usersRepository.find();
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return this.usersRepository.findOne(id);
   }
 
-  async remove(id: number) {
-    return this.usersRepository.delete(id);
+  async remove(id: string) {
+    const res = await this.usersRepository.delete(id);
+    if (res.affected) {
+      return true;
+    }
+    return false;
   }
 
   async create(createUserDto: CreateUserDto) {
@@ -36,16 +40,27 @@ export class UserService {
     }
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
+  async update(id: string, updateUserDto: UpdateUserDto) {
     try {
-      const updateResult = this.usersRepository.update(id, updateUserDto);
-      return updateResult;
+      const updateResult = await this.usersRepository.update(id, updateUserDto);
+      if (updateResult.affected) {
+        const user = await this.usersRepository.findOne(id);
+        return {
+          user,
+          wasUpdated: true,
+        };
+      }
+      return {
+        wasUpdated: false,
+      };
     } catch (error) {
-      return (
-        `This action fails to update a #${id} user` +
-        `${JSON.stringify(updateUserDto)} \n` +
-        `${JSON.stringify(error)}`
-      );
+      return {
+        message:
+          `This action fails to update a #${id} user` +
+          `${JSON.stringify(updateUserDto)} \n` +
+          `${JSON.stringify(error)}`,
+        wasUpdated: false,
+      };
     }
   }
 }

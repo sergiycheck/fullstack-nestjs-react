@@ -5,6 +5,7 @@ import "./App.scss";
 import { Users } from "./features/users/Users";
 import { Groups } from "./features/groups/Groups";
 import { AddUserForm } from "./features/users/AddUserForm";
+import { EditUserFormParamGetter } from "./features/users/EditUserForm";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
       <Route path="/" element={<AppContent />}>
         <Route index element={<Users />}></Route>
         <Route path="users/addUser" element={<AddUserForm />}></Route>
+        <Route path="users/editUser/:userId" element={<EditUserFormParamGetter />}></Route>
         <Route path="groups" element={<Groups />}></Route>
       </Route>
     </Routes>
