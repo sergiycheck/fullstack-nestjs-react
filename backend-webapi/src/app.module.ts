@@ -5,6 +5,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './users/user.module';
+import { GroupModule } from './group/group.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { UserModule } from './users/user.module';
           password,
           database,
           entities: ['dist/**/*.entity{.ts,.js}'],
+          logging: true,
           synchronize: true,
         } as TypeOrmModuleOptions;
         console.log('configObj ', configObj);
@@ -39,6 +41,7 @@ import { UserModule } from './users/user.module';
       },
     }),
     UserModule,
+    GroupModule,
   ],
   controllers: [AppController],
   providers: [AppService],
