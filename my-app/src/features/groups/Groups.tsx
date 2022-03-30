@@ -18,7 +18,7 @@ export const Groups = () => {
   return (
     <ContentList
       entityIds={groupIds}
-      linkPath="groups/addGroup"
+      linkPath="/groups/addGroup"
       linkText="add group"
       renderGetHeaders={() => <TableHeader headers={userTableHeaders}></TableHeader>}
       renderGetEntities={(key: React.Key, entityId: EntityId, index: number) => {
@@ -36,10 +36,11 @@ const GroupExcerpt = ({ entityId, index }: entityExcerptProps) => {
       <Col>{index + 1}</Col>
       <Col>{group?.name}</Col>
       <Col>{group?.description}</Col>
+      {/* TODO: update group.userIds.length on user edit asynchronously */}
       <Col>{group?.userIds?.length ? group.userIds?.length : "empty group"}</Col>
       <Col>
         <Button variant="outline-secondary">
-          <Link className="link" to={`groups/editGroup/${group?.id}`}>
+          <Link className="link" to={`/groups/editGroup/${group?.id}`}>
             edit group
           </Link>
         </Button>

@@ -1,13 +1,11 @@
-import { useEffect, useState } from "react";
-import { EntityState, EntityId, AsyncThunk } from "@reduxjs/toolkit";
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button, Col, Row } from "react-bootstrap";
-import { useAppDispatch, useAppSelector } from "./../../app/hooks";
+import { useAppDispatch } from "./../../app/hooks";
 import { User } from "./types";
-import { UsersState } from "./usersSlice";
 import {
   fetchUpdateUsersAsync,
-  fetchUsersByIdAsync,
+  fetchUserByIdAsync,
   fetchDeleteUsersAsync,
   CreateUserRequest,
   UserUpdateRequest,
@@ -16,35 +14,7 @@ import { selectUserById } from "./usersSlice";
 import { UserFormWrapper } from "./UserForm";
 import { Group } from "../groups/types";
 
-import { RootState } from "../../app/store";
-
-export const useUserIdToSelectOrFetchUser = ({
-  userId,
-  selectUserById,
-  fetchUsersByIdAsync,
-}: {
-  userId: string;
-  selectUserById: (state: RootState, id: EntityId) => User | undefined;
-  fetchUsersByIdAsync: AsyncThunk<
-    any,
-    {
-      userId: string;
-    },
-    {}
-  >;
-}) => {
-  const dispatch = useAppDispatch();
-
-  const user = useAppSelector((state) => selectUserById(state, userId));
-
-  useEffect(() => {
-    if (!user) {
-      dispatch(fetchUsersByIdAsync({ userId }));
-    }
-  }, [userId, dispatch, user, fetchUsersByIdAsync]);
-
-  return user;
-};
+import { useUserIdToSelectOrFetchUser } from "./UserHooks";
 
 export const EditUserFormParamGetter = () => {
   const { userId } = useParams();
@@ -53,7 +23,7 @@ export const EditUserFormParamGetter = () => {
   return <EditUserFormWrapper userId={userId}></EditUserFormWrapper>;
 };
 export const EditUserFormWrapper = ({ userId }: { userId: string }) => {
-  const user = useUserIdToSelectOrFetchUser({ userId, selectUserById, fetchUsersByIdAsync });
+  const user = useUserIdToSelectOrFetchUser({ userId, selectUserById, fetchUserByIdAsync });
 
   if (!user) {
     return (
@@ -66,6 +36,7 @@ export const EditUserFormWrapper = ({ userId }: { userId: string }) => {
   return <EditUserForm user={user}></EditUserForm>;
 };
 
+//TODO: add leave group feature
 export const EditUserForm = ({ user }: { user: User }) => {
   const navigate = useNavigate();
 
@@ -78,7 +49,13 @@ export const EditUserForm = ({ user }: { user: User }) => {
     username,
     groupId,
   }: CreateUserRequest | UserUpdateRequest) => {
-    let userToUpdate = { id: user.id, username, groupId } as UserUpdateRequest;
+    let userToUpdate = { id: user.id, username } as UserUpdateRequest;
+
+    if (groupId) {
+      userToUpdate = { ...userToUpdate, groupId };
+    } else {
+      userToUpdate = { ...userToUpdate, groupId: null };
+    }
 
     const result = await dispatch(fetchUpdateUsersAsync({ user: userToUpdate }));
     return result;

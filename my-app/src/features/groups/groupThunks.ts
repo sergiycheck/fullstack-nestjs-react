@@ -8,10 +8,10 @@ import { GroupResponseType, mapGroupResponse } from "./mappings";
 
 const thunkTypes = {
   fetchGroups: `${groupsSliceName}/fetchGroups`,
-  // fetchUserById: `${usersSliceName}/fetchUserById`,
-  // fetchAddUser: `${usersSliceName}/fetchAddUser`,
-  // fetchUpdateUser: `${usersSliceName}/fetchUpdateUser`,
-  // fetchDeleteUser: `${usersSliceName}/fetchDeleteUser`,
+  fetchGroupById: `${groupsSliceName}/fetchGroupById`,
+  fetchAddGroup: `${groupsSliceName}/fetchAddGroup`,
+  fetchUpdateGroup: `${groupsSliceName}/fetchUpdateGroup`,
+  fetchDeleteGroup: `${groupsSliceName}/fetchDeleteGroup`,
 };
 
 export const fetchGroupsAsync = createAsyncThunk(thunkTypes.fetchGroups, async () => {
@@ -21,51 +21,62 @@ export const fetchGroupsAsync = createAsyncThunk(thunkTypes.fetchGroups, async (
   return responseMapped;
 });
 
-// export const fetchGroupsByIdAsync = createAsyncThunk(
-//   thunkTypes.fetchUserById,
-//   async ({ userId }: { userId: string }) => {
-//     const response = await client.get(`${usersEndpoint}/${userId}`);
-//     const user = mapUserResponse(response);
-//     return user;
-//   }
-// );
+export const fetchGroupsByIdAsync = createAsyncThunk(
+  thunkTypes.fetchGroupById,
+  async ({ groupId }: { groupId: string }) => {
+    const response = (await client.get(`${groupsEndpoint}/${groupId}`)) as Group;
+    const group = mapGroupResponse(response);
+    return group;
+  }
+);
 
-// type UserUpdateRequest = Pick<User, "id" | "username">;
+export type GroupCreateReq = {
+  name: string;
+  description: string;
+  userIds?: string[];
+};
 
-// type UpdateResponse = {
-//   message: string;
-//   user: User;
-//   wasUpdated: boolean;
-// };
+export type GroupCreateRes = {
+  message: string;
+  group: Group;
+};
 
-// export const fetchUpdateUsersAsync = createAsyncThunk(
-//   thunkTypes.fetchUpdateUser,
-//   async ({ user }: { user: UserUpdateRequest }) => {
-//     const response = (await client.update(`${usersEndpoint}/${user.id}`, {
-//       ...user,
-//     })) as UpdateResponse;
-//     return response;
-//   }
-// );
+export const fetchAddGroupAsync = createAsyncThunk(
+  thunkTypes.fetchAddGroup,
+  async ({ group }: { group: GroupCreateReq }) => {
+    const response = (await client.post(groupsEndpoint, { ...group })) as GroupCreateRes;
+    return response;
+  }
+);
 
-// type deleteResponse = {
-//   message: string;
-//   wasDeleted: boolean;
-//   id: User["id"];
-// };
+type GroupUpdateRequest = Omit<Group, "userIds">;
 
-// export const fetchDeleteUsersAsync = createAsyncThunk(
-//   thunkTypes.fetchDeleteUser,
-//   async ({ userId }: { userId: string }) => {
-//     const response = (await client.delete(`${usersEndpoint}/${userId}`)) as deleteResponse;
-//     return response;
-//   }
-// );
+type UpdateResponse = {
+  message: string;
+  group: Group;
+  wasUpdated: boolean;
+};
 
-// export const fetchAddUserAsync = createAsyncThunk(
-//   thunkTypes.fetchAddUser,
-//   async ({ username }: { username: string }) => {
-//     const response = await client.post(usersEndpoint, { username });
-//     return response;
-//   }
-// );
+export const fetchUpdateGroupsAsync = createAsyncThunk(
+  thunkTypes.fetchUpdateGroup,
+  async ({ group }: { group: GroupUpdateRequest }) => {
+    const response = (await client.update(`${groupsEndpoint}/${group.id}`, {
+      ...group,
+    })) as UpdateResponse;
+    return response;
+  }
+);
+
+type DeleteResponse = {
+  message: string;
+  wasDeleted: boolean;
+  id: Group["id"];
+};
+
+export const fetchDeleteGroupsAsync = createAsyncThunk(
+  thunkTypes.fetchDeleteGroup,
+  async ({ groupId }: { groupId: string }) => {
+    const response = (await client.delete(`${groupsEndpoint}/${groupId}`)) as DeleteResponse;
+    return response;
+  }
+);

@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route, Outlet, Link, useNavigate, useLocation } from "react-router-dom";
-import { Col, Container, Nav, Row, Tabs, Tab } from "react-bootstrap";
+import { Routes, Route, Outlet, useNavigate, useLocation } from "react-router-dom";
+import { Container, Row, Tabs, Tab } from "react-bootstrap";
 import "./App.scss";
 import { Users } from "./features/users/Users";
 import { Groups } from "./features/groups/Groups";
 import { AddUserForm } from "./features/users/AddUserForm";
 import { EditUserFormParamGetter } from "./features/users/EditUserForm";
+import { AddGroup } from "./features/groups/AddGroup";
+import { EditGroup } from "./features/groups/EditGroup";
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
         <Route path="users/addUser" element={<AddUserForm />}></Route>
         <Route path="users/editUser/:userId" element={<EditUserFormParamGetter />}></Route>
         <Route path="groups" element={<Groups />}></Route>
+        <Route path="groups/addGroup" element={<AddGroup />}></Route>
+        <Route path="groups/editGroup/:groupId" element={<EditGroup />}></Route>
       </Route>
     </Routes>
   );

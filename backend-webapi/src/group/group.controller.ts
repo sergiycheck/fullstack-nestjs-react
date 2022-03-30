@@ -40,8 +40,21 @@ export class GroupController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateGroupDto: UpdateGroupDto) {
-    return this.groupService.update(id, updateGroupDto);
+  async update(
+    @Param('id') id: string,
+    @Body() updateGroupDto: UpdateGroupDto,
+  ) {
+    const updatedResult = await this.groupService.update(id, updateGroupDto);
+    if (updatedResult.wasUpdated) {
+      return {
+        message: 'group successfully updated',
+        ...updatedResult,
+      };
+    }
+    return {
+      message: `group wasn't updated`,
+      wasUpdated: false,
+    };
   }
 
   @Delete(':id')

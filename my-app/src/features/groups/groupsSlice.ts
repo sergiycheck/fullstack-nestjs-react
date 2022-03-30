@@ -1,7 +1,13 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { createEntityAdapter } from "@reduxjs/toolkit";
 import { RootState, AppThunk } from "../../app/store";
-import { fetchGroupsAsync } from "./groupThunks";
+import {
+  fetchGroupsAsync,
+  fetchGroupsByIdAsync,
+  fetchAddGroupAsync,
+  fetchUpdateGroupsAsync,
+  fetchDeleteGroupsAsync,
+} from "./groupThunks";
 import { Group, groupsSliceName } from "./types";
 
 import { StatusData } from "../shared/types";
@@ -36,21 +42,26 @@ export const groupsSlice = createSlice({
         state.status = StatusData.idle;
         const groups = action.payload;
         groupsAdapter.upsertMany(state, groups);
+      })
+      .addCase(fetchGroupsByIdAsync.fulfilled, (state, action) => {
+        state.status = StatusData.idle;
+        const group = action.payload;
+        groupsAdapter.upsertOne(state, group);
+      })
+      .addCase(fetchAddGroupAsync.fulfilled, (state, action) => {
+        const { group }: { group: Group } = action.payload;
+        groupsAdapter.upsertOne(state, group);
+      })
+      .addCase(fetchUpdateGroupsAsync.fulfilled, (state, action) => {
+        if (!action.payload.wasUpdated) return;
+        const { group }: { group: Group } = action.payload;
+        groupsAdapter.updateOne(state, { id: group.id, changes: { ...group } });
+      })
+      .addCase(fetchDeleteGroupsAsync.fulfilled, (state, action) => {
+        if (!action.payload.wasDeleted) return;
+        const deletedGroupId = action.payload.id;
+        groupsAdapter.removeOne(state, deletedGroupId);
       });
-    // .addCase(fetchAddUserAsync.fulfilled, (state, action) => {
-    //   const user: User = action.payload.user;
-    //   usersAdapter.upsertOne(state, user);
-    // })
-    // .addCase(fetchUpdateUsersAsync.fulfilled, (state, action) => {
-    //   if (!action.payload.wasUpdated) return;
-    //   const updatedUser = action.payload.user;
-    //   usersAdapter.updateOne(state, { id: updatedUser.id, changes: { ...updatedUser } });
-    // })
-    // .addCase(fetchDeleteUsersAsync.fulfilled, (state, action) => {
-    //   if (!action.payload.wasDeleted) return;
-    //   const deletedUserId = action.payload.id;
-    //   usersAdapter.removeOne(state, deletedUserId);
-    // });
   },
 });
 

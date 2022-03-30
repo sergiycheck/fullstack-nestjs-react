@@ -1,11 +1,12 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSelector, createSlice } from "@reduxjs/toolkit";
 import { createEntityAdapter } from "@reduxjs/toolkit";
-import { RootState, AppThunk } from "../../app/store";
+import { RootState } from "../../app/store";
 import { User, usersSliceName } from "./types";
 import {
+  fetchUsersAsync,
+  fetchUserByIdAsync,
   fetchAddUserAsync,
   fetchUpdateUsersAsync,
-  fetchUsersAsync,
   fetchDeleteUsersAsync,
 } from "./userThunks";
 
@@ -44,6 +45,11 @@ export const usersSlice = createSlice({
         const users: User[] = action.payload;
         usersAdapter.upsertMany(state, users);
       })
+      .addCase(fetchUserByIdAsync.fulfilled, (state, action) => {
+        state.status = StatusData.idle;
+        const user = action.payload;
+        usersAdapter.upsertOne(state, user);
+      })
       .addCase(fetchAddUserAsync.fulfilled, (state, action) => {
         const user: User = action.payload.user;
         usersAdapter.upsertOne(state, user);
@@ -69,6 +75,9 @@ export const {
   selectIds: selectUserIds,
 } = usersAdapter.getSelectors((state: RootState) => state.users);
 
-export const incrementIfOdd = (): AppThunk => (dispatch, getState) => {};
+export const selectUsersWithoutGroup = createSelector(
+  (state: RootState) => selectUsers(state),
+  (users) => users.filter((u) => !u.groupId)
+);
 
 export default usersSlice.reducer;

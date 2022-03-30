@@ -18,8 +18,8 @@ export class UserService {
     return users;
   }
 
-  findByIds(ids: string[]) {
-    return this.usersRepository.findByIds(ids);
+  findByIdsWithGroup(ids: string[]) {
+    return this.usersRepository.findByIds(ids, { relations: ['group'] });
   }
 
   findOne(id: string) {

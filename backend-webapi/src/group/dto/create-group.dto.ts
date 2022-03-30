@@ -1,6 +1,7 @@
+import { OmitType } from '@nestjs/mapped-types';
 import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-export class CreateGroupDto {
+export class CreateGroupWithUserIdsDto {
   @IsNotEmpty()
   @IsString()
   name: string;
@@ -14,3 +15,7 @@ export class CreateGroupDto {
   @IsArray()
   userIds: string[];
 }
+
+export class CreateGroupDto extends OmitType(CreateGroupWithUserIdsDto, [
+  'userIds',
+] as const) {}

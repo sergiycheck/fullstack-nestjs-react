@@ -9,7 +9,7 @@ import { GroupService } from './group.service';
 import { GroupController } from './group.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Group } from './entities/group.entity';
-import { GroupCreateMiddleware } from './interceptors/group-create.middleware';
+import { GroupCreateMiddleware } from './middlewares/group-create.middleware';
 import { UserService } from 'src/users/user.service';
 import { UserModule } from 'src/users/user.module';
 

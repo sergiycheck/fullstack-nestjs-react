@@ -21,16 +21,16 @@ export const fetchUsersAsync = createAsyncThunk(thunkTypes.fetchUsers, async () 
   return responseMapped;
 });
 
-export const fetchUsersByIdAsync = createAsyncThunk(
+export const fetchUserByIdAsync = createAsyncThunk(
   thunkTypes.fetchUserById,
   async ({ userId }: { userId: string }) => {
-    const response = await client.get(`${usersEndpoint}/${userId}`);
+    const response = (await client.get(`${usersEndpoint}/${userId}`)) as User;
     const user = mapUserResponse(response);
     return user;
   }
 );
 
-export type UserUpdateRequest = Pick<User, "id" | "username" | "groupId">;
+export type UserUpdateRequest = Omit<User, "created">;
 
 export type UpdateResponse = {
   message: string;
