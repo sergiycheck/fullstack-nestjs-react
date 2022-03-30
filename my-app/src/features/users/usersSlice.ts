@@ -1,13 +1,15 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { createEntityAdapter } from "@reduxjs/toolkit";
 import { RootState, AppThunk } from "../../app/store";
-import { StatusData, User, usersSliceName } from "./types";
+import { User, usersSliceName } from "./types";
 import {
   fetchAddUserAsync,
   fetchUpdateUsersAsync,
   fetchUsersAsync,
   fetchDeleteUsersAsync,
 } from "./userThunks";
+
+import { StatusData } from "../shared/types";
 
 const usersAdapter = createEntityAdapter<User>({
   sortComparer: (u1, u2) => {
@@ -67,8 +69,6 @@ export const {
   selectIds: selectUserIds,
 } = usersAdapter.getSelectors((state: RootState) => state.users);
 
-// We can also write thunks by hand, which may contain both sync and async logic.
-// Here's an example of conditionally dispatching actions based on current state.
 export const incrementIfOdd = (): AppThunk => (dispatch, getState) => {};
 
 export default usersSlice.reducer;

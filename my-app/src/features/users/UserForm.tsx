@@ -1,22 +1,35 @@
 import React, { useState } from "react";
-import { unwrapResult } from "@reduxjs/toolkit";
-import { StatusData } from "./types";
+import { EntityId, unwrapResult } from "@reduxjs/toolkit";
 import { Alert } from "react-bootstrap";
+import { StatusData } from "../shared/types";
+import { UseToSelectOfFetchGroupsIds } from "../groups/GroupHooks";
+import { selectGroupById, selectGroupsIds } from "../groups/groupsSlice";
+import { fetchGroupsAsync } from "../groups/groupThunks";
+import { entityExcerptProps } from "../shared/types";
+import { useAppSelector } from "../../app/hooks";
+import { CreateUserRequest, UserUpdateRequest } from "./userThunks";
 
 export function UserFormWrapper({
   isEditing,
   titleMessage,
   username,
   setUserName,
+  groupId,
+  setGroupId,
   handleAsyncThunkAction,
 }: {
   isEditing: boolean;
   titleMessage: string;
   username: string;
   setUserName: React.Dispatch<React.SetStateAction<string>>;
-  handleAsyncThunkAction: any;
+
+  groupId: string;
+  setGroupId: React.Dispatch<React.SetStateAction<string>>;
+  handleAsyncThunkAction: (args: CreateUserRequest | UserUpdateRequest) => any;
 }) {
   const [addRequestStatus, setAddRequestStatus] = useState(StatusData.idle);
+
+  const { groupIds } = UseToSelectOfFetchGroupsIds({ selectGroupsIds, fetchGroupsAsync });
 
   const canSave = Boolean(username) && addRequestStatus === StatusData.idle;
 
@@ -29,6 +42,10 @@ export function UserFormWrapper({
     setUserName(event.target.value);
   };
 
+  const onGroupChanged = (event: any) => {
+    setGroupId(event.target.value.trim());
+  };
+
   const saveDataClicked = async (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
@@ -36,7 +53,7 @@ export function UserFormWrapper({
       try {
         setAddRequestStatus(StatusData.loading);
 
-        const resultOfAddNewUser = await handleAsyncThunkAction({ username });
+        const resultOfAddNewUser = await handleAsyncThunkAction({ username, groupId });
 
         const result = unwrapResult(resultOfAddNewUser);
 
@@ -59,6 +76,9 @@ export function UserFormWrapper({
       <UserForm
         username={username}
         onUserNameChanged={onUserNameChanged}
+        groupId={groupId}
+        groupIds={groupIds}
+        onGroupChanged={onGroupChanged}
         canSave={canSave}
         saveDataClicked={saveDataClicked}
       ></UserForm>
@@ -72,14 +92,28 @@ export function UserFormWrapper({
 export const UserForm = ({
   username,
   onUserNameChanged,
+
+  groupId,
+  groupIds,
+  onGroupChanged,
+
   canSave,
   saveDataClicked,
 }: {
   username: string;
   onUserNameChanged: (event: any) => void;
+
+  groupId: string;
+  groupIds: EntityId[];
+  onGroupChanged: (event: any) => void;
+
   canSave: boolean;
   saveDataClicked: (event: any) => void;
 }) => {
+  const renderedGroupOptions = groupIds.map((entityId, index) => {
+    return <GroupOptionExcerpt key={index} entityId={entityId} index={index}></GroupOptionExcerpt>;
+  });
+
   return (
     <form className="mb-3" autoComplete="off">
       <label className="form-label" htmlFor="userName">
@@ -93,6 +127,14 @@ export const UserForm = ({
         value={username}
         onChange={onUserNameChanged}
       />
+
+      <label className="form-label" htmlFor="userGroup">
+        user group:
+      </label>
+      <select value={groupId} onChange={onGroupChanged} name="userGroup" id="userGroup">
+        <option value=""></option>
+        {renderedGroupOptions}
+      </select>
 
       <div className="row justify-content-end mt-2">
         <div className="col-auto">
@@ -108,4 +150,10 @@ export const UserForm = ({
       </div>
     </form>
   );
+};
+
+export const GroupOptionExcerpt = ({ entityId }: entityExcerptProps) => {
+  const group = useAppSelector((state) => selectGroupById(state, entityId));
+
+  return <option value={group?.id}>{group?.name}</option>;
 };

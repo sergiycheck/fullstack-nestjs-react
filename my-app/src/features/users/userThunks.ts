@@ -1,8 +1,10 @@
 import { client } from "../../app/client";
 import { usersEndpoint } from "../../app/api-endpoints";
-
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { User, usersSliceName } from "./types";
+import { UserResponseType, mapUserResponse } from "./mappings";
+
+//TODO: refactor types move to types
 
 const thunkTypes = {
   fetchUsers: `${usersSliceName}/fetchUsers`,
@@ -13,22 +15,24 @@ const thunkTypes = {
 };
 
 export const fetchUsersAsync = createAsyncThunk(thunkTypes.fetchUsers, async () => {
-  const response = await client.get(usersEndpoint);
+  let response = (await client.get(usersEndpoint)) as UserResponseType[];
   if (!Array.isArray(response)) return [];
-  return response;
+  let responseMapped = response.map(mapUserResponse) as User[];
+  return responseMapped;
 });
 
 export const fetchUsersByIdAsync = createAsyncThunk(
   thunkTypes.fetchUserById,
   async ({ userId }: { userId: string }) => {
     const response = await client.get(`${usersEndpoint}/${userId}`);
-    return response;
+    const user = mapUserResponse(response);
+    return user;
   }
 );
 
-type UserUpdateRequest = Pick<User, "id" | "username">;
+export type UserUpdateRequest = Pick<User, "id" | "username" | "groupId">;
 
-type UpdateResponse = {
+export type UpdateResponse = {
   message: string;
   user: User;
   wasUpdated: boolean;
@@ -44,7 +48,7 @@ export const fetchUpdateUsersAsync = createAsyncThunk(
   }
 );
 
-type deleteResponse = {
+export type deleteResponse = {
   message: string;
   wasDeleted: boolean;
   id: User["id"];
@@ -58,10 +62,15 @@ export const fetchDeleteUsersAsync = createAsyncThunk(
   }
 );
 
+export type CreateUserRequest = {
+  username: string;
+  groupId?: string;
+};
+
 export const fetchAddUserAsync = createAsyncThunk(
   thunkTypes.fetchAddUser,
-  async ({ username }: { username: string }) => {
-    const response = await client.post(usersEndpoint, { username });
+  async ({ username, groupId }: CreateUserRequest) => {
+    const response = await client.post(usersEndpoint, { username, groupId });
     return response;
   }
 );

@@ -1,13 +1,22 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "./../../app/hooks";
 import { EntityState, EntityId, AsyncThunk } from "@reduxjs/toolkit";
+import { useParams, useNavigate } from "react-router-dom";
+import { Button, Col, Row } from "react-bootstrap";
+import { useAppDispatch, useAppSelector } from "./../../app/hooks";
 import { User } from "./types";
 import { UsersState } from "./usersSlice";
-import { fetchUpdateUsersAsync, fetchUsersByIdAsync, fetchDeleteUsersAsync } from "./userThunks";
+import {
+  fetchUpdateUsersAsync,
+  fetchUsersByIdAsync,
+  fetchDeleteUsersAsync,
+  CreateUserRequest,
+  UserUpdateRequest,
+} from "./userThunks";
 import { selectUserById } from "./usersSlice";
 import { UserFormWrapper } from "./UserForm";
-import { Button, Col, Row } from "react-bootstrap";
+import { Group } from "../groups/types";
+
+import { RootState } from "../../app/store";
 
 export const useUserIdToSelectOrFetchUser = ({
   userId,
@@ -15,12 +24,7 @@ export const useUserIdToSelectOrFetchUser = ({
   fetchUsersByIdAsync,
 }: {
   userId: string;
-  selectUserById: (
-    state: {
-      users: EntityState<User> & UsersState;
-    },
-    id: EntityId
-  ) => User | undefined;
+  selectUserById: (state: RootState, id: EntityId) => User | undefined;
   fetchUsersByIdAsync: AsyncThunk<
     any,
     {
@@ -68,10 +72,15 @@ export const EditUserForm = ({ user }: { user: User }) => {
   const dispatch = useAppDispatch();
 
   const [username, setUserName] = useState(user.username);
+  const [groupId, setGroupId] = useState<Group["id"]>(user?.groupId ? user.groupId : "");
 
-  const handleAsyncThunkAction = async ({ username }: { username: string }) => {
-    const userToUpdate = { user: { id: user.id, username } };
-    const result = await dispatch(fetchUpdateUsersAsync(userToUpdate));
+  const handleAsyncThunkAction = async ({
+    username,
+    groupId,
+  }: CreateUserRequest | UserUpdateRequest) => {
+    let userToUpdate = { id: user.id, username, groupId } as UserUpdateRequest;
+
+    const result = await dispatch(fetchUpdateUsersAsync({ user: userToUpdate }));
     return result;
   };
 
@@ -83,6 +92,8 @@ export const EditUserForm = ({ user }: { user: User }) => {
             isEditing={true}
             titleMessage="Edit user"
             username={username}
+            groupId={groupId}
+            setGroupId={setGroupId}
             setUserName={setUserName}
             handleAsyncThunkAction={handleAsyncThunkAction}
           ></UserFormWrapper>
