@@ -1,4 +1,4 @@
-import { logm } from "./middewares";
+import { logmMiddleware } from "./middewares";
 
 export async function client(endpoint: string, { body, ...customConfig }: any = {}) {
   const headers = { "Content-Type": "application/json" };
@@ -16,8 +16,8 @@ export async function client(endpoint: string, { body, ...customConfig }: any = 
     config.body = JSON.stringify(body);
   }
 
-  logm("client config", config);
-  logm("client endpoint", endpoint);
+  logmMiddleware("client config", config);
+  logmMiddleware("client endpoint", endpoint);
 
   let data;
   try {

@@ -9,10 +9,10 @@ import { entityExcerptProps } from "../shared/types";
 import { fetchGroupsAsync } from "./groupThunks";
 import { TableHeader } from "../shared/TableHeaders";
 
-import { UseToSelectOfFetchGroupsIds } from "./GroupHooks";
+import { useToSelectOfFetchGroupsIds } from "./GroupHooks";
 
 export const Groups = () => {
-  const { groupIds } = UseToSelectOfFetchGroupsIds({ selectGroupsIds, fetchGroupsAsync });
+  const { groupIds } = useToSelectOfFetchGroupsIds({ selectGroupsIds, fetchGroupsAsync });
   const userTableHeaders = ["№", "Name", "Description", "Members", "Actions"];
 
   return (

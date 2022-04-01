@@ -6,10 +6,6 @@ import App from "./App";
 import { store } from "./app/store";
 import { Provider } from "react-redux";
 import * as serviceWorker from "./serviceWorker";
-import { fetchUsersAsync } from "./features/users/userThunks";
-
-//TODO: fetch users in the userList component
-store.dispatch(fetchUsersAsync());
 
 ReactDOM.render(
   <React.StrictMode>

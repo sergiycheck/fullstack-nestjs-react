@@ -1,4 +1,4 @@
-import { createSelector, createSlice } from "@reduxjs/toolkit";
+import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { createEntityAdapter } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
 import { User, usersSliceName } from "./types";
@@ -33,20 +33,23 @@ const initialState = usersAdapter.getInitialState<UsersState>({
 export const usersSlice = createSlice({
   name: initialState.name,
   initialState,
-  reducers: {},
+  reducers: {
+    updateOneUser: (state: any, action: PayloadAction<User>) => {
+      const updatedUser = action.payload;
+      usersAdapter.updateOne(state, { id: updatedUser.id, changes: { ...updatedUser } });
+    },
+  },
   extraReducers: (builder) => {
-    //TODO: check whether the response is valid
     builder
       .addCase(fetchUsersAsync.pending, (state) => {
         state.status = StatusData.loading;
       })
       .addCase(fetchUsersAsync.fulfilled, (state, action) => {
-        state.status = StatusData.idle;
+        state.status = StatusData.fulfilled;
         const users: User[] = action.payload;
         usersAdapter.upsertMany(state, users);
       })
       .addCase(fetchUserByIdAsync.fulfilled, (state, action) => {
-        state.status = StatusData.idle;
         const user = action.payload;
         usersAdapter.upsertOne(state, user);
       })
@@ -67,7 +70,7 @@ export const usersSlice = createSlice({
   },
 });
 
-export const {} = usersSlice.actions;
+export const { updateOneUser } = usersSlice.actions;
 
 export const {
   selectAll: selectUsers,
@@ -75,9 +78,17 @@ export const {
   selectIds: selectUserIds,
 } = usersAdapter.getSelectors((state: RootState) => state.users);
 
+export const selectUsersStatus = (state: RootState) => state.users.status;
+
 export const selectUsersWithoutGroup = createSelector(
   (state: RootState) => selectUsers(state),
   (users) => users.filter((u) => !u.groupId)
 );
+
+export const selectUsersIdsByGroupId = (groupId: string) => (state: RootState) => {
+  const users = selectUsers(state);
+  const filteredUsers = users.filter((u) => u.groupId === groupId);
+  return filteredUsers.map((u) => u.id);
+};
 
 export default usersSlice.reducer;

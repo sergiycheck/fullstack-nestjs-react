@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { useAppDispatch } from "../../app/hooks";
+import { unwrapResult } from "@reduxjs/toolkit";
+import { Form, Alert, Button, Row, Col } from "react-bootstrap";
+
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { StatusData } from "../shared/types";
 import { fetchAddGroupAsync } from "./groupThunks";
-import { Group } from "../groups/types";
-import { useToSelectOfFetchUsers } from "../users/UserHooks";
-import { selectUsersWithoutGroup } from "../users/usersSlice";
+import { selectUsersStatus, selectUsersWithoutGroup } from "../users/usersSlice";
 import { fetchUsersAsync } from "../users/userThunks";
-import { unwrapResult } from "@reduxjs/toolkit";
-import { Form, Alert, Button, Row, Col, ListGroup } from "react-bootstrap";
 import { User } from "../users/types";
+import { UsersListActionsItem } from "./userListActionsItem";
+
+//TODO: add group infinite users fetch
 
 export const AddGroup = () => {
   const dispatch = useAppDispatch();
@@ -17,19 +19,21 @@ export const AddGroup = () => {
   const [description, setDescription] = useState("");
 
   const [requestStatus, setRequestStatus] = useState(StatusData.idle);
-
-  const { entities: users } = useToSelectOfFetchUsers({
-    selectUsers: selectUsersWithoutGroup,
-    fetchUsersAsync,
-  });
-
   const [initialUsers, setInitialUsers] = useState<User[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
+
+  const users = useAppSelector(selectUsersWithoutGroup);
+  const usersStatus = useAppSelector(selectUsersStatus);
+
+  useEffect(() => {
+    if (usersStatus === StatusData.idle) {
+      dispatch(fetchUsersAsync());
+    }
+  }, [usersStatus, dispatch]);
 
   useEffect(() => {
     setInitialUsers(users);
   }, [users]);
-
-  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
 
   const canSave = Boolean(name) && Boolean(description) && requestStatus === StatusData.idle;
 
@@ -42,12 +46,12 @@ export const AddGroup = () => {
   };
 
   const onNameChanged = (event: any) => {
-    setName(event.currentTarget.value.trim());
+    setName(event.currentTarget.value);
     resetAlertAndMessage();
   };
 
   const onDescriptionChanged = (event: any) => {
-    setDescription(event.currentTarget.value.trim());
+    setDescription(event.currentTarget.value);
     resetAlertAndMessage();
   };
 
@@ -65,12 +69,19 @@ export const AddGroup = () => {
     setSelectedUsers(selectedUsers.filter((user) => user.id !== userToRemove.id));
   };
 
-  const renderedInitialUsersList = initialUsers.map((u) => {
+  const renderedInitialUsersList = initialUsers.map((user) => {
     return (
       <UsersListActionsItem
-        key={u.id}
-        user={u}
+        key={user.id}
+        user={user}
         onSelectedUsersChanged={onSelectedUsersChangedAdd}
+        renderButton={(user: User, onSelectedUsersChanged: (userId: User) => void) => {
+          return (
+            <Button onClick={() => onSelectedUsersChanged(user)} variant="outline-primary">
+              add user
+            </Button>
+          );
+        }}
       ></UsersListActionsItem>
     );
   });
@@ -81,6 +92,13 @@ export const AddGroup = () => {
         key={user.id}
         user={user}
         onSelectedUsersChanged={onSelectedUsersChangedRemoved}
+        renderButton={(user: User, onSelectedUsersChanged: (userId: User) => void) => {
+          return (
+            <Button onClick={() => onSelectedUsersChanged(user)} variant="outline-secondary">
+              remove user
+            </Button>
+          );
+        }}
       ></UsersListActionsItem>
     );
   });
@@ -92,13 +110,14 @@ export const AddGroup = () => {
       try {
         setRequestStatus(StatusData.loading);
 
-        const resultOfAddNewUser = await dispatch(
+        //TODO: update group ids and user groupId and groupName
+        const resultOfAddNew = await dispatch(
           fetchAddGroupAsync({
             group: { name, description, userIds: selectedUsers.map((u) => u.id) },
           })
         );
 
-        const result = unwrapResult(resultOfAddNewUser);
+        const result = unwrapResult(resultOfAddNew);
 
         setShowMessage(result.message);
         setShowAlert(true);
@@ -117,6 +136,7 @@ export const AddGroup = () => {
           <Form.Label>Name</Form.Label>
           <Form.Control type="text" value={name} onChange={onNameChanged} />
         </Form.Group>
+
         <Form.Group className="mb-3" controlId="description-area">
           <Form.Label>Description</Form.Label>
           <Form.Control
@@ -165,17 +185,5 @@ export const AddGroup = () => {
         <p>{showMessage}</p>
       </Alert>
     </React.Fragment>
-  );
-};
-
-export const UsersListActionsItem = ({
-  user,
-  onSelectedUsersChanged,
-}: {
-  user: User;
-  onSelectedUsersChanged: (userId: User) => void;
-}) => {
-  return (
-    <ListGroup.Item onClick={() => onSelectedUsersChanged(user)}>{user.username}</ListGroup.Item>
   );
 };

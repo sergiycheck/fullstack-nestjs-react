@@ -9,10 +9,12 @@ import "./Users.scss";
 import { ContentList } from "../shared/ContentList";
 import { entityExcerptProps } from "../shared/types";
 import { TableHeader } from "../shared/TableHeaders";
+import { useToSelectOfFetchUserIds } from "./UserHooks";
+import { fetchUsersAsync } from "./userThunks";
 
 export const Users = () => {
-  const usersIds = useAppSelector(selectUserIds);
-  const userTableHeaders = ["№", "Username", "Created", "Actions"];
+  const { entityIds: usersIds } = useToSelectOfFetchUserIds({ selectUserIds, fetchUsersAsync });
+  const userTableHeaders = ["№", "Username", "Group", "Created", "Actions"];
 
   return (
     <ContentList
@@ -34,6 +36,7 @@ export const UserExcerpt = ({ entityId, index }: entityExcerptProps) => {
     <Row className="mb-1">
       <Col>{index + 1}</Col>
       <Col>{user?.username}</Col>
+      <Col>{user?.groupName}</Col>
       <Col>
         <TimeAgo timeStamp={user?.created}></TimeAgo>
       </Col>

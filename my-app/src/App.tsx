@@ -7,7 +7,7 @@ import { Groups } from "./features/groups/Groups";
 import { AddUserForm } from "./features/users/AddUserForm";
 import { EditUserFormParamGetter } from "./features/users/EditUserForm";
 import { AddGroup } from "./features/groups/AddGroup";
-import { EditGroup } from "./features/groups/EditGroup";
+import { EditGroupFormParamGetter } from "./features/groups/editGroup/EditGroup";
 
 function App() {
   return (
@@ -18,7 +18,7 @@ function App() {
         <Route path="users/editUser/:userId" element={<EditUserFormParamGetter />}></Route>
         <Route path="groups" element={<Groups />}></Route>
         <Route path="groups/addGroup" element={<AddGroup />}></Route>
-        <Route path="groups/editGroup/:groupId" element={<EditGroup />}></Route>
+        <Route path="groups/editGroup/:groupId" element={<EditGroupFormParamGetter />}></Route>
       </Route>
     </Routes>
   );

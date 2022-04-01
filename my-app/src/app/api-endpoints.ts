@@ -6,3 +6,6 @@ const baseEndpoint = `${protocol}://${host}:${port}`;
 
 export const usersEndpoint = `${baseEndpoint}/user`;
 export const groupsEndpoint = `${baseEndpoint}/group`;
+
+export const removeUserFromGroupEndPoint = `${groupsEndpoint}/remove-user-from-group/:groupId`;
+export const addUserToGroupEndPoint = `${groupsEndpoint}/add-user-to-group/:groupId`;

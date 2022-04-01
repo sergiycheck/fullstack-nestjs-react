@@ -3,6 +3,8 @@ import { EntityId, AsyncThunk } from "@reduxjs/toolkit";
 import { useAppDispatch, useAppSelector } from "./../../app/hooks";
 import { User } from "./types";
 import { RootState } from "../../app/store";
+import { selectUsersStatus } from "./usersSlice";
+import { StatusData } from "../shared/types";
 
 export const useUserIdToSelectOrFetchUser = ({
   userId,
@@ -32,24 +34,51 @@ export const useUserIdToSelectOrFetchUser = ({
   return user;
 };
 
-type SelectorUsersType = (state: RootState) => User[];
+// export const useToSelectOfFetchUsersForUpdate = ({
+//   selectUsersWithCondition,
+//   selectAllUsers,
+//   fetchUsersAsync,
+// }: {
+//   selectUsersWithCondition: (args: any) => User[];
+//   selectAllUsers: (args: any) => User[];
+//   fetchUsersAsync: AsyncThunk<User[], void, {}>;
+// }) => {
+//   const dispatch = useAppDispatch();
 
-export const useToSelectOfFetchUsers = ({
-  selectUsers,
+//   const usersSelected = useAppSelector(selectUsersWithCondition);
+//   // const allUsers = useAppSelector(selectAllUsers);
+
+//   useEffect(() => {
+//     // const noUsersAtTheClient = Boolean(!allUsers.length);
+//     const noSelectedUsers = Boolean(!usersSelected.length);
+
+//     if (noUsersAtTheClient || noSelectedUsers) {
+//       dispatch(fetchUsersAsync());
+//     }
+
+//   }, [dispatch, fetchUsersAsync, allUsers, usersSelected]);
+
+//   return { usersSelected };
+// };
+
+export const useToSelectOfFetchUserIds = ({
+  selectUserIds,
   fetchUsersAsync,
 }: {
-  selectUsers: (args: any) => User[];
+  selectUserIds: (state: RootState) => EntityId[];
   fetchUsersAsync: AsyncThunk<User[], void, {}>;
 }) => {
   const dispatch = useAppDispatch();
 
-  const entities = useAppSelector(selectUsers);
+  const entityIds = useAppSelector(selectUserIds);
+
+  const status = useAppSelector(selectUsersStatus);
 
   useEffect(() => {
-    if (!entities.length) {
+    if (status === StatusData.idle) {
       dispatch(fetchUsersAsync());
     }
-  }, [dispatch, fetchUsersAsync, entities]);
+  });
 
-  return { entities };
+  return { entityIds };
 };

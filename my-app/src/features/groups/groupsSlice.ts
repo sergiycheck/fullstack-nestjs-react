@@ -1,23 +1,18 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { createEntityAdapter } from "@reduxjs/toolkit";
-import { RootState, AppThunk } from "../../app/store";
+import { RootState } from "../../app/store";
 import {
   fetchGroupsAsync,
-  fetchGroupsByIdAsync,
+  fetchGroupByIdAsync,
   fetchAddGroupAsync,
   fetchUpdateGroupsAsync,
-  fetchDeleteGroupsAsync,
+  fetchDeleteGroupAsync,
 } from "./groupThunks";
 import { Group, groupsSliceName } from "./types";
 
 import { StatusData } from "../shared/types";
 
-const groupsAdapter = createEntityAdapter<Group>({
-  sortComparer: (g1, g2) => {
-    if (g1.userIds?.length === g2.userIds?.length) return 0;
-    return g1.userIds!.length > g2.userIds!.length ? 1 : 0;
-  },
-});
+const groupsAdapter = createEntityAdapter<Group>();
 
 export interface GroupsState {
   name: string;
@@ -31,20 +26,55 @@ const initialState = groupsAdapter.getInitialState<GroupsState>({
 export const groupsSlice = createSlice({
   name: initialState.name,
   initialState,
-  reducers: {},
+  reducers: {
+    addUserIdIntoOneGroup: (
+      state: any,
+      action: PayloadAction<{ group: Group } & { newUserId: string }>
+    ) => {
+      const { group: toUpdateGroupObj } = action.payload;
+      const { newUserId } = action.payload;
+
+      let currentUserIds: string[] = [];
+      if (toUpdateGroupObj.userIds) {
+        currentUserIds = toUpdateGroupObj.userIds;
+      }
+
+      const newUserIds = [...currentUserIds, newUserId];
+
+      groupsAdapter.updateOne(state, {
+        id: toUpdateGroupObj.id,
+        changes: { userIds: newUserIds },
+      });
+    },
+    removeUserIdFromOneGroup: (
+      state: any,
+      action: PayloadAction<{ group: Group } & { userIdToRemove: string }>
+    ) => {
+      const { group: toUpdateGroupObj } = action.payload;
+
+      let currentUserIds: string[] = [];
+      if (toUpdateGroupObj.userIds) {
+        currentUserIds = toUpdateGroupObj.userIds;
+      }
+      const { userIdToRemove } = action.payload;
+      const filteredUserIds = currentUserIds.filter((uIds) => uIds !== userIdToRemove);
+      groupsAdapter.updateOne(state, {
+        id: toUpdateGroupObj.id,
+        changes: { userIds: filteredUserIds },
+      });
+    },
+  },
   extraReducers: (builder) => {
-    //TODO: check whether the response is valid
     builder
       .addCase(fetchGroupsAsync.pending, (state) => {
         state.status = StatusData.loading;
       })
       .addCase(fetchGroupsAsync.fulfilled, (state, action) => {
-        state.status = StatusData.idle;
+        state.status = StatusData.fulfilled;
         const groups = action.payload;
         groupsAdapter.upsertMany(state, groups);
       })
-      .addCase(fetchGroupsByIdAsync.fulfilled, (state, action) => {
-        state.status = StatusData.idle;
+      .addCase(fetchGroupByIdAsync.fulfilled, (state, action) => {
         const group = action.payload;
         groupsAdapter.upsertOne(state, group);
       })
@@ -57,7 +87,7 @@ export const groupsSlice = createSlice({
         const { group }: { group: Group } = action.payload;
         groupsAdapter.updateOne(state, { id: group.id, changes: { ...group } });
       })
-      .addCase(fetchDeleteGroupsAsync.fulfilled, (state, action) => {
+      .addCase(fetchDeleteGroupAsync.fulfilled, (state, action) => {
         if (!action.payload.wasDeleted) return;
         const deletedGroupId = action.payload.id;
         groupsAdapter.removeOne(state, deletedGroupId);
@@ -65,7 +95,9 @@ export const groupsSlice = createSlice({
   },
 });
 
-export const {} = groupsSlice.actions;
+export const { addUserIdIntoOneGroup, removeUserIdFromOneGroup } = groupsSlice.actions;
+
+export const selectGroupsStatus = (state: RootState) => state.groups.status;
 
 export const {
   selectAll: selectGroups,

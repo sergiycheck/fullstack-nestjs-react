@@ -5,4 +5,5 @@ export interface User {
   username: string;
   created: string;
   groupId: string | null;
+  groupName: string | null;
 }

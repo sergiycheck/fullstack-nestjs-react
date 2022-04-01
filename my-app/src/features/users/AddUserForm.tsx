@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { UserFormWrapper } from "./UserForm";
 import { useAppDispatch } from "../../app/hooks";
-import { CreateUserRequest, fetchAddUserAsync, UserUpdateRequest } from "./userThunks";
+import {
+  CreateUserRequest,
+  fetchCreateUserAndUpdateAddGroupUserIds,
+  UserUpdateRequest,
+} from "./userThunks";
 import { Group } from "../groups/types";
 
 export const AddUserForm = () => {
@@ -18,7 +22,7 @@ export const AddUserForm = () => {
     if (groupId) {
       addUserReq = { ...addUserReq, groupId };
     }
-    const result = await dispatch(fetchAddUserAsync(addUserReq));
+    const result = await dispatch(fetchCreateUserAndUpdateAddGroupUserIds(addUserReq));
     return result;
   };
 

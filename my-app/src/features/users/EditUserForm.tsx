@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button, Col, Row } from "react-bootstrap";
-import { useAppDispatch } from "./../../app/hooks";
+import { useAppDispatch, useAppSelector } from "./../../app/hooks";
 import { User } from "./types";
 import {
+  fetchUpdateUserAndRemoveItIdFromGroup,
+  fetchUpdateUserAndAddItIdToGroup,
+  fetchUpdateUserAnMoveItIdToOtherGroup,
   fetchUpdateUsersAsync,
   fetchUserByIdAsync,
   fetchDeleteUsersAsync,
@@ -12,9 +15,9 @@ import {
 } from "./userThunks";
 import { selectUserById } from "./usersSlice";
 import { UserFormWrapper } from "./UserForm";
-import { Group } from "../groups/types";
 
 import { useUserIdToSelectOrFetchUser } from "./UserHooks";
+import { selectGroupById } from "../groups/groupsSlice";
 
 export const EditUserFormParamGetter = () => {
   const { userId } = useParams();
@@ -43,7 +46,11 @@ export const EditUserForm = ({ user }: { user: User }) => {
   const dispatch = useAppDispatch();
 
   const [username, setUserName] = useState(user.username);
-  const [groupId, setGroupId] = useState<Group["id"]>(user?.groupId ? user.groupId : "");
+  const [groupId, setGroupId] = useState(user?.groupId ? user.groupId : "");
+
+  const userOldGroup = useAppSelector((state) =>
+    selectGroupById(state, user?.groupId ? user.groupId : "")
+  );
 
   const handleAsyncThunkAction = async ({
     username,
@@ -57,8 +64,28 @@ export const EditUserForm = ({ user }: { user: User }) => {
       userToUpdate = { ...userToUpdate, groupId: null };
     }
 
-    const result = await dispatch(fetchUpdateUsersAsync({ user: userToUpdate }));
-    return result;
+    let unwrapedResult;
+
+    if (userOldGroup && groupId && groupId !== userOldGroup.id) {
+      // user has group and selected other group
+      //move user from old group to new group
+      unwrapedResult = await dispatch(
+        fetchUpdateUserAnMoveItIdToOtherGroup(userToUpdate, userOldGroup)
+      );
+    } else if (userOldGroup && !groupId) {
+      //user is in group but selected no group. remove user from old group
+      unwrapedResult = await dispatch(
+        fetchUpdateUserAndRemoveItIdFromGroup(userToUpdate, userOldGroup)
+      );
+    } else if (!userOldGroup && groupId) {
+      //user is not in group and selected an group. add user to the group
+      unwrapedResult = await dispatch(fetchUpdateUserAndAddItIdToGroup(userToUpdate));
+    } else if ((!userOldGroup && !groupId) || (userOldGroup && userOldGroup.id === groupId)) {
+      //user has not changed group
+      unwrapedResult = await dispatch(fetchUpdateUsersAsync({ user: userToUpdate })).unwrap();
+    }
+
+    return unwrapedResult;
   };
 
   return (

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { EntityId, unwrapResult } from "@reduxjs/toolkit";
+import { EntityId } from "@reduxjs/toolkit";
 import { Alert } from "react-bootstrap";
 import { StatusData } from "../shared/types";
-import { UseToSelectOfFetchGroupsIds } from "../groups/GroupHooks";
+import { useToSelectOfFetchGroupsIds } from "../groups/GroupHooks";
 import { selectGroupById, selectGroupsIds } from "../groups/groupsSlice";
 import { fetchGroupsAsync } from "../groups/groupThunks";
 import { entityExcerptProps } from "../shared/types";
@@ -29,7 +29,7 @@ export function UserFormWrapper({
 }) {
   const [addRequestStatus, setAddRequestStatus] = useState(StatusData.idle);
 
-  const { groupIds } = UseToSelectOfFetchGroupsIds({ selectGroupsIds, fetchGroupsAsync });
+  const { groupIds } = useToSelectOfFetchGroupsIds({ selectGroupsIds, fetchGroupsAsync });
 
   const canSave = Boolean(username) && addRequestStatus === StatusData.idle;
 
@@ -53,9 +53,7 @@ export function UserFormWrapper({
       try {
         setAddRequestStatus(StatusData.loading);
 
-        const resultOfAddNewUser = await handleAsyncThunkAction({ username, groupId });
-
-        const result = unwrapResult(resultOfAddNewUser);
+        const result = await handleAsyncThunkAction({ username, groupId });
 
         setShowUserMessage(result.message);
         setShowUserAlert(true);
