@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Alert, Button, Row, Col, ListGroup } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
-import { removeUserFromGroupThunk, RemoveOrAddUserToGroupResponse } from "../groupThunks";
+import { removeUserFromGroupThunk } from "../groupThunks";
 import { User } from "../../users/types";
 import { selectUserById } from "../../users/usersSlice";
+import { RemoveOrAddUserToGroupResponse } from "../types";
 
 export const RemoveUsersComponent = ({
   usersIds,

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button, Col, Row } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "./../../app/hooks";
-import { User } from "./types";
+import { User, UserUpdateRequest, CreateUserRequest } from "./types";
 import {
   fetchUpdateUserAndRemoveItIdFromGroup,
   fetchUpdateUserAndAddItIdToGroup,
@@ -10,8 +10,6 @@ import {
   fetchUpdateUsersAsync,
   fetchUserByIdAsync,
   fetchDeleteUsersAsync,
-  CreateUserRequest,
-  UserUpdateRequest,
 } from "./userThunks";
 import { selectUserById } from "./usersSlice";
 import { UserFormWrapper } from "./UserForm";
@@ -39,7 +37,6 @@ export const EditUserFormWrapper = ({ userId }: { userId: string }) => {
   return <EditUserForm user={user}></EditUserForm>;
 };
 
-//TODO: add leave group feature
 export const EditUserForm = ({ user }: { user: User }) => {
   const navigate = useNavigate();
 

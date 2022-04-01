@@ -1,22 +1,19 @@
 import { client } from "../../app/client";
 import { usersEndpoint, findUsersByIdsPostEndPoint } from "../../app/api-endpoints";
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { User, usersSliceName } from "./types";
 import { AppThunk } from "../../app/store";
 import { selectGroupById } from "../groups/groupsSlice";
 import { addUserIdIntoOneGroup, removeUserIdFromOneGroup } from "../groups/groupsSlice";
 import { Group } from "../groups/types";
-
-//TODO: refactor types move to types
-
-const thunkTypes = {
-  fetchUsers: `${usersSliceName}/fetchUsers`,
-  fetchUsersByIdsAndUpdateAsync: `${usersSliceName}/fetchUsersByIdsAndUpdateAsync`,
-  fetchUserById: `${usersSliceName}/fetchUserById`,
-  fetchAddUser: `${usersSliceName}/fetchAddUser`,
-  fetchUpdateUser: `${usersSliceName}/fetchUpdateUser`,
-  fetchDeleteUser: `${usersSliceName}/fetchDeleteUser`,
-};
+import { thunkTypes } from "./thunk.types";
+import {
+  User,
+  UserUpdateRequest,
+  UpdateUserResponse,
+  DeleteResponse,
+  CreateUserRequest,
+  CreateUserResponse,
+} from "./types";
 
 export const fetchUsersAsync = createAsyncThunk(thunkTypes.fetchUsers, async () => {
   let response = (await client.get(usersEndpoint)) as User[];
@@ -42,14 +39,6 @@ export const fetchUserByIdAsync = createAsyncThunk(
   }
 );
 
-export type UserUpdateRequest = Omit<User, "created">;
-
-export type UpdateUserResponse = {
-  message: string;
-  user: User;
-  wasUpdated: boolean;
-};
-
 export const fetchUpdateUsersAsync = createAsyncThunk(
   thunkTypes.fetchUpdateUser,
   async ({ user }: { user: UserUpdateRequest }) => {
@@ -60,29 +49,13 @@ export const fetchUpdateUsersAsync = createAsyncThunk(
   }
 );
 
-export type deleteResponse = {
-  message: string;
-  wasDeleted: boolean;
-  id: User["id"];
-};
-
 export const fetchDeleteUsersAsync = createAsyncThunk(
   thunkTypes.fetchDeleteUser,
   async ({ userId }: { userId: string }) => {
-    const response = (await client.delete(`${usersEndpoint}/${userId}`)) as deleteResponse;
+    const response = (await client.delete(`${usersEndpoint}/${userId}`)) as DeleteResponse;
     return response;
   }
 );
-
-export type CreateUserRequest = {
-  username: string;
-  groupId?: string;
-};
-
-type CreateUserResponse = {
-  user: User;
-  message: string;
-};
 
 export const fetchAddUserAsync = createAsyncThunk(
   thunkTypes.fetchAddUser,

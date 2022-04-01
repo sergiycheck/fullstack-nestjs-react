@@ -7,9 +7,8 @@ import { selectUsersStatus, selectUsersWithoutGroup } from "../users/usersSlice"
 import { fetchUsersAsync } from "../users/userThunks";
 import { User } from "../users/types";
 import { UsersListActionsItem } from "./userListActionsItem";
-import { fetchAddGroupAsyncAndFetchUpdateUsersAsync, GroupCreateRes } from "./groupThunks";
-
-//TODO: add group and set groupName for user (update user)
+import { fetchAddGroupAsyncAndFetchUpdateUsersAsync } from "./groupThunks";
+import { GroupCreateRes } from "./types";
 
 export const AddGroup = () => {
   const dispatch = useAppDispatch();

@@ -1,31 +1,24 @@
+import { createAsyncThunk } from "@reduxjs/toolkit";
 import { client } from "../../app/client";
 import {
   groupsEndpoint,
   removeUserFromGroupEndPoint,
   addUserToGroupEndPoint,
 } from "../../app/api-endpoints";
-
-import { createAsyncThunk } from "@reduxjs/toolkit";
-import { Group, groupsSliceName } from "./types";
 import { AppThunk } from "../../app/store";
-import { User } from "../users/types";
 import { removeUserIdFromOneGroup, selectGroupById } from "./groupsSlice";
 import { updateOneUser } from "../users/usersSlice";
-
 import { fetchUsersByIdsAndUpdateAsync } from "../users/userThunks";
-
-//TODO: refactor types move to types
-
-const thunkTypes = {
-  fetchGroups: `${groupsSliceName}/fetchGroups`,
-  fetchGroupById: `${groupsSliceName}/fetchGroupById`,
-  fetchAddGroup: `${groupsSliceName}/fetchAddGroup`,
-  fetchUpdateGroup: `${groupsSliceName}/fetchUpdateGroup`,
-  fetchDeleteGroup: `${groupsSliceName}/fetchDeleteGroup`,
-
-  fetchRemoveUserFromGroup: `${groupsSliceName}/fetchRemoveUserFromGroup`,
-  fetchAddUserToGroup: `${groupsSliceName}/fetchAddUserToGroup`,
-};
+import { thunkTypes } from "./thunk.types";
+import {
+  Group,
+  GroupCreateReq,
+  GroupCreateRes,
+  GroupUpdateRequest,
+  UpdateResponse,
+  DeleteResponse,
+  RemoveOrAddUserToGroupResponse,
+} from "./types";
 
 export const fetchGroupsAsync = createAsyncThunk(thunkTypes.fetchGroups, async () => {
   let response = (await client.get(groupsEndpoint)) as Group[];
@@ -41,17 +34,6 @@ export const fetchGroupByIdAsync = createAsyncThunk(
     return response;
   }
 );
-
-export type GroupCreateReq = {
-  name: string;
-  description: string;
-  userIds?: string[];
-};
-
-export type GroupCreateRes = {
-  message: string;
-  group: Group;
-};
 
 export const fetchAddGroupAsync = createAsyncThunk(
   thunkTypes.fetchAddGroup,
@@ -73,14 +55,6 @@ export const fetchAddGroupAsyncAndFetchUpdateUsersAsync =
     return response;
   };
 
-type GroupUpdateRequest = Omit<Group, "userIds">;
-
-type UpdateResponse = {
-  message: string;
-  group: Group;
-  wasUpdated: boolean;
-};
-
 export const fetchUpdateGroupsAsync = createAsyncThunk(
   thunkTypes.fetchUpdateGroup,
   async (group: GroupUpdateRequest) => {
@@ -91,12 +65,6 @@ export const fetchUpdateGroupsAsync = createAsyncThunk(
   }
 );
 
-type DeleteResponse = {
-  message: string;
-  wasDeleted: boolean;
-  id: Group["id"];
-};
-
 export const fetchDeleteGroupAsync = createAsyncThunk(
   thunkTypes.fetchDeleteGroup,
   async ({ groupId }: { groupId: string }) => {
@@ -104,14 +72,6 @@ export const fetchDeleteGroupAsync = createAsyncThunk(
     return response;
   }
 );
-
-export type RemoveOrAddUserToGroupResponse = {
-  success: boolean;
-  user: User;
-  message: string;
-  userId: string;
-  groupId: string;
-};
 
 export const fetchRemoveUserFromGroupAsync = createAsyncThunk(
   thunkTypes.fetchRemoveUserFromGroup,

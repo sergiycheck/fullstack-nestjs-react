@@ -36,7 +36,6 @@ const GroupExcerpt = ({ entityId, index }: entityExcerptProps) => {
       <Col>{index + 1}</Col>
       <Col>{group?.name}</Col>
       <Col>{group?.description}</Col>
-      {/* TODO: update group.userIds.length on user edit asynchronously */}
       <Col>{group?.userIds?.length ? group.userIds?.length : "empty group"}</Col>
       <Col>
         <Button variant="outline-secondary">

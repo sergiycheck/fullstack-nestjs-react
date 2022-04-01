@@ -39,7 +39,6 @@ export class GroupController {
     return this.groupService.findOne(id);
   }
 
-  //TODO: update group with ability to remove users from it
   @Patch(':id')
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,

@@ -7,7 +7,7 @@ import { selectGroupById, selectGroupsIds } from "../groups/groupsSlice";
 import { fetchGroupsAsync } from "../groups/groupThunks";
 import { entityExcerptProps } from "../shared/types";
 import { useAppSelector } from "../../app/hooks";
-import { CreateUserRequest, UserUpdateRequest } from "./userThunks";
+import { UserUpdateRequest, CreateUserRequest } from "./types";
 
 export function UserFormWrapper({
   isEditing,

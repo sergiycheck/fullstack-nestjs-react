@@ -34,33 +34,6 @@ export const useUserIdToSelectOrFetchUser = ({
   return user;
 };
 
-// export const useToSelectOfFetchUsersForUpdate = ({
-//   selectUsersWithCondition,
-//   selectAllUsers,
-//   fetchUsersAsync,
-// }: {
-//   selectUsersWithCondition: (args: any) => User[];
-//   selectAllUsers: (args: any) => User[];
-//   fetchUsersAsync: AsyncThunk<User[], void, {}>;
-// }) => {
-//   const dispatch = useAppDispatch();
-
-//   const usersSelected = useAppSelector(selectUsersWithCondition);
-//   // const allUsers = useAppSelector(selectAllUsers);
-
-//   useEffect(() => {
-//     // const noUsersAtTheClient = Boolean(!allUsers.length);
-//     const noSelectedUsers = Boolean(!usersSelected.length);
-
-//     if (noUsersAtTheClient || noSelectedUsers) {
-//       dispatch(fetchUsersAsync());
-//     }
-
-//   }, [dispatch, fetchUsersAsync, allUsers, usersSelected]);
-
-//   return { usersSelected };
-// };
-
 export const useToSelectOfFetchUserIds = ({
   selectUserIds,
   fetchUsersAsync,

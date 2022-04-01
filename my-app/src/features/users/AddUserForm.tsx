@@ -1,12 +1,9 @@
 import { useState } from "react";
 import { UserFormWrapper } from "./UserForm";
 import { useAppDispatch } from "../../app/hooks";
-import {
-  CreateUserRequest,
-  fetchCreateUserAndUpdateAddGroupUserIds,
-  UserUpdateRequest,
-} from "./userThunks";
+import { fetchCreateUserAndUpdateAddGroupUserIds } from "./userThunks";
 import { Group } from "../groups/types";
+import { UserUpdateRequest, CreateUserRequest } from "./types";
 
 export const AddUserForm = () => {
   const dispatch = useAppDispatch();

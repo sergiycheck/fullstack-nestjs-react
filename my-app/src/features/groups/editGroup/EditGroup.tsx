@@ -1,20 +1,16 @@
-import React, { useState, useMemo, useEffect } from "react";
-import { NavigateFunction, useNavigate, useParams } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Form, Alert, Button, Row, Col } from "react-bootstrap";
-
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
-import { AppDispatch } from "../../../app/store";
 import { StatusData } from "../../shared/types";
 import { selectUsersStatus } from "../../users/usersSlice";
 import { useGroupIdToSelectOrFetchGroup } from "../GroupHooks";
 import { selectGroupById } from "../groupsSlice";
-import { fetchDeleteGroupAsync, fetchGroupByIdAsync, fetchUpdateGroupsAsync } from "../groupThunks";
+import { fetchGroupByIdAsync, fetchUpdateGroupsAsync } from "../groupThunks";
 import { Group } from "../types";
-
 import { fetchUsersAsync } from "../../users/userThunks";
-
 import { RemoveUsersComponent } from "./RemoveUsersComponent";
-import { logm } from "../../../app/middewares";
+import { useGroupToGetMemoizedDeleteComponent } from "./MemoizedDeleteGroup";
 
 export const EditGroupFormParamGetter = () => {
   const { groupId } = useParams();
@@ -37,49 +33,6 @@ export const EditGroupFormWrapper = ({ groupId }: { groupId: string }) => {
   return <EditGroup group={group}></EditGroup>;
 };
 
-export const useGroupToGetMemoizedDeleteComponent = ({
-  group,
-  dispatch,
-  navigate,
-}: {
-  group: Group;
-  dispatch: AppDispatch;
-  navigate: NavigateFunction;
-}) => {
-  const deleteGroupRenderedMemo = useMemo(
-    function getDeleteGroupRenderedComponent() {
-      if (!group?.userIds?.length) {
-        return (
-          <Row>
-            <Col>You can delete this group</Col>
-            <Col>
-              <Button
-                variant="outline-danger"
-                onClick={() => {
-                  dispatch(fetchDeleteGroupAsync({ groupId: group.id }));
-                  navigate("/groups");
-                }}
-              >
-                delete
-              </Button>
-            </Col>
-          </Row>
-        );
-      } else {
-        return (
-          <Row>
-            <Col>You can't delete this group. Some users have been assigned to this group</Col>
-          </Row>
-        );
-      }
-    },
-    [group, dispatch, navigate]
-  );
-
-  return deleteGroupRenderedMemo;
-};
-
-//TODO: memory leak on edit group users
 export const EditGroup = ({ group }: { group: Group }) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -87,8 +40,6 @@ export const EditGroup = ({ group }: { group: Group }) => {
   const [name, setName] = useState(group.name);
   const [description, setDescription] = useState(group.description);
   const [requestStatus, setRequestStatus] = useState(StatusData.idle);
-
-  logm("group ", group);
 
   const usersStatus = useAppSelector(selectUsersStatus);
   useEffect(() => {
