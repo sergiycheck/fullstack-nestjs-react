@@ -16,6 +16,4 @@ export class CreateGroupWithUserIdsDto {
   userIds: string[];
 }
 
-export class CreateGroupDto extends OmitType(CreateGroupWithUserIdsDto, [
-  'userIds',
-] as const) {}
+export class CreateGroupDto extends OmitType(CreateGroupWithUserIdsDto, ['userIds'] as const) {}

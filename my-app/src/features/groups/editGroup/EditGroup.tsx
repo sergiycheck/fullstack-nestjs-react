@@ -5,7 +5,7 @@ import { Form, Alert, Button, Row, Col } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { AppDispatch } from "../../../app/store";
 import { StatusData } from "../../shared/types";
-import { selectUsersIdsByGroupId, selectUsersStatus } from "../../users/usersSlice";
+import { selectUsersStatus } from "../../users/usersSlice";
 import { useGroupIdToSelectOrFetchGroup } from "../GroupHooks";
 import { selectGroupById } from "../groupsSlice";
 import { fetchDeleteGroupAsync, fetchGroupByIdAsync, fetchUpdateGroupsAsync } from "../groupThunks";
@@ -88,8 +88,7 @@ export const EditGroup = ({ group }: { group: Group }) => {
   const [description, setDescription] = useState(group.description);
   const [requestStatus, setRequestStatus] = useState(StatusData.idle);
 
-  const usersGroupMembersIds = useAppSelector(selectUsersIdsByGroupId(group.id));
-  logm("usersGroupMembersIds ", usersGroupMembersIds);
+  logm("group ", group);
 
   const usersStatus = useAppSelector(selectUsersStatus);
   useEffect(() => {
@@ -191,10 +190,7 @@ export const EditGroup = ({ group }: { group: Group }) => {
         </Col>
       </Row>
 
-      <RemoveUsersComponent
-        usersIds={usersGroupMembersIds}
-        groupId={group.id}
-      ></RemoveUsersComponent>
+      <RemoveUsersComponent usersIds={group.userIds} groupId={group.id}></RemoveUsersComponent>
 
       {deleteGroupRenderedMemo}
     </Row>

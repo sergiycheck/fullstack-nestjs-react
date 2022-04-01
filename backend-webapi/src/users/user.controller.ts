@@ -1,17 +1,8 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  DefaultValuePipe,
-  ParseUUIDPipe,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { FindUsersByIdsDto } from './dto/request.dto';
 
 @Controller('user')
 export class UserController {
@@ -32,16 +23,19 @@ export class UserController {
     return this.userService.findAll();
   }
 
+  @Post('find-users-by-ids')
+  async findUsersByIds(@Body() findUsersByIds: FindUsersByIdsDto) {
+    const res = await this.userService.findUsersByIds(findUsersByIds.userIds);
+    return res;
+  }
+
   @Get(':id')
   findOne(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.userService.findOne(id);
   }
 
   @Patch(':id')
-  async update(
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
+  async update(@Param('id', new ParseUUIDPipe()) id: string, @Body() updateUserDto: UpdateUserDto) {
     const updatedResult = await this.userService.update(id, updateUserDto);
     if (updatedResult.wasUpdated) {
       return {

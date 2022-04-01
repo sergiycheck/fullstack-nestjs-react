@@ -12,6 +12,8 @@ import { User } from "../users/types";
 import { removeUserIdFromOneGroup, selectGroupById } from "./groupsSlice";
 import { updateOneUser } from "../users/usersSlice";
 
+import { fetchUsersByIdsAndUpdateAsync } from "../users/userThunks";
+
 //TODO: refactor types move to types
 
 const thunkTypes = {
@@ -58,6 +60,18 @@ export const fetchAddGroupAsync = createAsyncThunk(
     return response;
   }
 );
+
+export const fetchAddGroupAsyncAndFetchUpdateUsersAsync =
+  ({ group }: { group: GroupCreateReq }): AppThunk =>
+  async (dispatch, getState) => {
+    const response = await dispatch(fetchAddGroupAsync({ group })).unwrap();
+    const { userIds } = response.group;
+    if (userIds) {
+      await dispatch(fetchUsersByIdsAndUpdateAsync({ userIds }));
+    }
+
+    return response;
+  };
 
 type GroupUpdateRequest = Omit<Group, "userIds">;
 
@@ -112,6 +126,17 @@ export const fetchRemoveUserFromGroupAsync = createAsyncThunk(
   }
 );
 
+export const removeUserFromGroupThunk =
+  (groupId: string, userId: string): AppThunk =>
+  async (dispatch, getState) => {
+    const groupToUpdate = selectGroupById(getState(), groupId) as Group;
+    const response = await dispatch(fetchRemoveUserFromGroupAsync({ groupId, userId })).unwrap();
+    const user = response.user;
+    dispatch(updateOneUser(user));
+    dispatch(removeUserIdFromOneGroup({ group: groupToUpdate, userIdToRemove: response.userId }));
+    return response;
+  };
+
 export const fetchAddUserToGroupAsync = createAsyncThunk(
   thunkTypes.fetchAddUserToGroup,
   async ({ groupId, userId }: { groupId: string; userId: string }) => {
@@ -124,15 +149,3 @@ export const fetchAddUserToGroupAsync = createAsyncThunk(
     return response;
   }
 );
-
-//TODO: update user groupId and groupName fields
-export const removeUserFromGroupThunk =
-  (groupId: string, userId: string): AppThunk =>
-  async (dispatch, getState) => {
-    const groupToUpdate = selectGroupById(getState(), groupId) as Group;
-    const response = await dispatch(fetchRemoveUserFromGroupAsync({ groupId, userId })).unwrap();
-    const user = response.user;
-    dispatch(updateOneUser(user));
-    dispatch(removeUserIdFromOneGroup({ group: groupToUpdate, userIdToRemove: response.userId }));
-    return response;
-  };

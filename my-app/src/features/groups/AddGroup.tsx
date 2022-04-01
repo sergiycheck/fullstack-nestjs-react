@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { unwrapResult } from "@reduxjs/toolkit";
 import { Form, Alert, Button, Row, Col } from "react-bootstrap";
 
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { StatusData } from "../shared/types";
-import { fetchAddGroupAsync } from "./groupThunks";
 import { selectUsersStatus, selectUsersWithoutGroup } from "../users/usersSlice";
 import { fetchUsersAsync } from "../users/userThunks";
 import { User } from "../users/types";
 import { UsersListActionsItem } from "./userListActionsItem";
+import { fetchAddGroupAsyncAndFetchUpdateUsersAsync, GroupCreateRes } from "./groupThunks";
 
-//TODO: add group infinite users fetch
+//TODO: add group and set groupName for user (update user)
 
 export const AddGroup = () => {
   const dispatch = useAppDispatch();
@@ -103,6 +102,12 @@ export const AddGroup = () => {
     );
   });
 
+  const resetAddGroupState = () => {
+    setName("");
+    setDescription("");
+    setSelectedUsers([]);
+  };
+
   const saveDataClicked = async (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
@@ -110,17 +115,15 @@ export const AddGroup = () => {
       try {
         setRequestStatus(StatusData.loading);
 
-        //TODO: update group ids and user groupId and groupName
-        const resultOfAddNew = await dispatch(
-          fetchAddGroupAsync({
+        const result = (await dispatch(
+          fetchAddGroupAsyncAndFetchUpdateUsersAsync({
             group: { name, description, userIds: selectedUsers.map((u) => u.id) },
           })
-        );
-
-        const result = unwrapResult(resultOfAddNew);
+        )) as unknown as GroupCreateRes;
 
         setShowMessage(result.message);
         setShowAlert(true);
+        resetAddGroupState();
       } catch (err) {
         console.error("Failed to save the group", err);
       } finally {

@@ -1,9 +1,5 @@
-import {
-  BadRequestException,
-  Injectable,
-  NestMiddleware,
-} from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
+import { BadRequestException, Injectable, NestMiddleware } from '@nestjs/common';
+import { Response, NextFunction } from 'express';
 
 import { UserService } from 'src/users/user.service';
 import { CreateGroupWithUserIdsDto } from '../dto/create-group.dto';

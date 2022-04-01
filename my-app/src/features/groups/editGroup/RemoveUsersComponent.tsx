@@ -9,17 +9,21 @@ export const RemoveUsersComponent = ({
   usersIds,
   groupId,
 }: {
-  usersIds: string[];
+  usersIds: string[] | null;
   groupId: string;
 }) => {
-  if (!usersIds.length) return null;
+  const [removeUserSuccess, setRemoveUserSuccess] = useState(false);
+  const [removeUserMsg, setRemoveUserMsg] = useState("");
 
+  if (!usersIds || !usersIds.length) return <div>no users found</div>;
   const renderedGroupMembersToRemove = usersIds.map((userId) => {
     return (
       <RemoveUserFromGroupActionItem
         key={userId}
         userId={userId}
         groupId={groupId}
+        setRemoveUserMsg={setRemoveUserMsg}
+        setRemoveUserSuccess={setRemoveUserSuccess}
       ></RemoveUserFromGroupActionItem>
     );
   });
@@ -29,6 +33,13 @@ export const RemoveUsersComponent = ({
       <Col>
         <Row>
           <Col>Remove users from group</Col>
+        </Row>
+        <Row>
+          <Col>
+            <Alert show={removeUserSuccess} variant="success">
+              <p>{removeUserMsg}</p>
+            </Alert>
+          </Col>
         </Row>
         <Row>
           <Col>
@@ -43,14 +54,15 @@ export const RemoveUsersComponent = ({
 export const RemoveUserFromGroupActionItem = ({
   userId,
   groupId,
+  setRemoveUserSuccess,
+  setRemoveUserMsg,
 }: {
   userId: string;
   groupId: string;
+  setRemoveUserSuccess: React.Dispatch<React.SetStateAction<boolean>>;
+  setRemoveUserMsg: React.Dispatch<React.SetStateAction<string>>;
 }) => {
   const dispatch = useAppDispatch();
-
-  const [removeUserSuccess, setRemoveUserSuccess] = useState(false);
-  const [removeUserMsg, setRemoveUserMsg] = useState("");
 
   const user = useAppSelector((state) => selectUserById(state, userId));
 
@@ -73,11 +85,6 @@ export const RemoveUserFromGroupActionItem = ({
           <Button onClick={() => removeUserFromGroupHandler(user)} variant="outline-primary">
             remove user
           </Button>
-        </Col>
-        <Col>
-          <Alert show={removeUserSuccess} variant="success">
-            <p>{removeUserMsg}</p>
-          </Alert>
         </Col>
       </Row>
     </ListGroup.Item>

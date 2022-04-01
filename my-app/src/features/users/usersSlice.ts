@@ -8,6 +8,7 @@ import {
   fetchAddUserAsync,
   fetchUpdateUsersAsync,
   fetchDeleteUsersAsync,
+  fetchUsersByIdsAndUpdateAsync,
 } from "./userThunks";
 
 import { StatusData } from "../shared/types";
@@ -52,6 +53,11 @@ export const usersSlice = createSlice({
       .addCase(fetchUserByIdAsync.fulfilled, (state, action) => {
         const user = action.payload;
         usersAdapter.upsertOne(state, user);
+      })
+      .addCase(fetchUsersByIdsAndUpdateAsync.fulfilled, (state, action) => {
+        const users = action.payload;
+        const updates = users.map((u) => ({ id: u.id, changes: { ...u } }));
+        usersAdapter.updateMany(state, updates);
       })
       .addCase(fetchAddUserAsync.fulfilled, (state, action) => {
         const user: User = action.payload.user;

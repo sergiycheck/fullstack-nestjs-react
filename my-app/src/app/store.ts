@@ -8,7 +8,7 @@ export const store = configureStore({
     users: usersReducer,
     groups: groupsReducer,
   },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware().prepend(loggerMiddleware),
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(loggerMiddleware),
 });
 
 export type AppDispatch = typeof store.dispatch;

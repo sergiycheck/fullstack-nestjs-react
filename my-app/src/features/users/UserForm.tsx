@@ -126,13 +126,19 @@ export const UserForm = ({
         onChange={onUserNameChanged}
       />
 
-      <label className="form-label" htmlFor="userGroup">
-        user group:
-      </label>
-      <select value={groupId} onChange={onGroupChanged} name="userGroup" id="userGroup">
-        <option value=""></option>
-        {renderedGroupOptions}
-      </select>
+      <div className="mt-2 row gap-2 row-cols-auto">
+        <div className="col">
+          <label className="form-label" htmlFor="userGroup">
+            user group:
+          </label>
+        </div>
+        <div className="col">
+          <select value={groupId} onChange={onGroupChanged} name="userGroup" id="userGroup">
+            <option value="">No group</option>
+            {renderedGroupOptions}
+          </select>
+        </div>
+      </div>
 
       <div className="row justify-content-end mt-2">
         <div className="col-auto">

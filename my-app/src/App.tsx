@@ -28,7 +28,9 @@ const AppContent = () => {
   return (
     <div className="page">
       <header className="page__header">
-        <NavBarWrapper />
+        <div className="container">
+          <NavBarWrapper />
+        </div>
       </header>
       <main className="page__body">
         <Container>

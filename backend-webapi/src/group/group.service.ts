@@ -1,35 +1,51 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateGroupDto } from './dto/create-group.dto';
+import { GroupWithRelationIdsDbResponse } from './dto/group-responses.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { Group } from './entities/group.entity';
+import { GroupMapperService } from './group-mapper.service';
+import { GroupWithRelationsIdsResp } from './dto/group-responses.dto';
+import { UserService } from 'src/users/user.service';
 
 @Injectable()
 export class GroupService {
   constructor(
     @InjectRepository(Group) private groupRepository: Repository<Group>,
+    @Inject(forwardRef(() => UserService))
+    private userService: UserService,
+    private groupMapper: GroupMapperService,
   ) {}
 
-  findAll() {
-    return this.groupRepository.find({ relations: ['users'] });
+  async findAll(): Promise<GroupWithRelationsIdsResp[]> {
+    const resArr = (await this.groupRepository.find({
+      loadRelationIds: { relations: ['users'] },
+    })) as unknown as GroupWithRelationIdsDbResponse[];
+
+    return resArr.map(this.groupMapper.mapGroupDbFindResponseToGroupResponse);
   }
 
-  findOne(id: string) {
-    return this.groupRepository.findOne(id, { relations: ['users'] });
+  async findOne(id: string): Promise<GroupWithRelationsIdsResp> {
+    const res = (await this.groupRepository.findOne(id, {
+      loadRelationIds: { relations: ['users'] },
+    })) as unknown as GroupWithRelationIdsDbResponse;
+    return this.groupMapper.mapGroupDbFindResponseToGroupResponse(res);
   }
 
-  findOneWithoutRelations(id: string) {
+  findOneWithoutRelations(id: string): Promise<Group> {
     return this.groupRepository.findOne(id);
   }
 
-  async create(createGroupDto: CreateGroupDto, users?: User[]) {
+  async create(createGroupDto: CreateGroupDto, users?: User[]): Promise<GroupWithRelationsIdsResp> {
     try {
       const group = new Group(createGroupDto);
       if (users) group.users = users;
       const result = await this.groupRepository.save(group);
-      return result;
+      await this.userService.setGroupNameForManyUsers(users, group.name);
+
+      return this.groupMapper.mapGroupToGroupResponseWithRelationsIds(result);
     } catch (error) {
       throw new InternalServerErrorException({
         message: `can't create group  ${JSON.stringify(createGroupDto)}`,
@@ -37,7 +53,18 @@ export class GroupService {
     }
   }
 
-  async update(id: string, updateGroupDto: UpdateGroupDto) {
+  async update(
+    id: string,
+    updateGroupDto: UpdateGroupDto,
+  ): Promise<
+    | {
+        group: GroupWithRelationsIdsResp;
+        wasUpdated: boolean;
+      }
+    | {
+        wasUpdated: boolean;
+      }
+  > {
     try {
       const group = new Group(updateGroupDto);
       const result = await this.groupRepository.update(id, group);
@@ -58,10 +85,13 @@ export class GroupService {
     }
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<{
+    wasDeleted: boolean;
+    message: string;
+  }> {
     try {
       const group = await this.findOne(id);
-      if (group && group.users.length) {
+      if (group && group.userIds.length) {
         return {
           wasDeleted: false,
           message: `some users are assigned to this group`,
@@ -73,9 +103,15 @@ export class GroupService {
       }
       return { wasDeleted: false, message: `group wasn't deleted` };
     } catch (error) {
-      throw new InternalServerErrorException(
-        `unable to delete group with id ${id}`,
-      );
+      throw new InternalServerErrorException(`unable to delete group with id ${id}`);
     }
+  }
+
+  removeUserFromGroup(userId: string) {
+    return this.userService.removeUserFromGroup(userId);
+  }
+
+  addUserToGroup(userId: string, groupId: string) {
+    return this.userService.addUserToGroup(userId, groupId);
   }
 }

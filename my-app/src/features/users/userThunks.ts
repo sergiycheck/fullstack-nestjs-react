@@ -1,5 +1,5 @@
 import { client } from "../../app/client";
-import { usersEndpoint } from "../../app/api-endpoints";
+import { usersEndpoint, findUsersByIdsPostEndPoint } from "../../app/api-endpoints";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { User, usersSliceName } from "./types";
 import { AppThunk } from "../../app/store";
@@ -11,6 +11,7 @@ import { Group } from "../groups/types";
 
 const thunkTypes = {
   fetchUsers: `${usersSliceName}/fetchUsers`,
+  fetchUsersByIdsAndUpdateAsync: `${usersSliceName}/fetchUsersByIdsAndUpdateAsync`,
   fetchUserById: `${usersSliceName}/fetchUserById`,
   fetchAddUser: `${usersSliceName}/fetchAddUser`,
   fetchUpdateUser: `${usersSliceName}/fetchUpdateUser`,
@@ -22,6 +23,16 @@ export const fetchUsersAsync = createAsyncThunk(thunkTypes.fetchUsers, async () 
   if (!Array.isArray(response)) return [];
   return response;
 });
+
+//dispatch this thunk after add group
+export const fetchUsersByIdsAndUpdateAsync = createAsyncThunk(
+  thunkTypes.fetchUsersByIdsAndUpdateAsync,
+  async ({ userIds }: { userIds: string[] }) => {
+    let resp = (await client.post(findUsersByIdsPostEndPoint, { userIds })) as User[];
+    if (!Array.isArray(resp)) return [];
+    return resp;
+  }
+);
 
 export const fetchUserByIdAsync = createAsyncThunk(
   thunkTypes.fetchUserById,
