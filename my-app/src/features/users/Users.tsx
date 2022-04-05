@@ -13,7 +13,13 @@ import { fetchUsersAsync } from "./userThunks";
 
 export const Users = () => {
   const { entityIds: usersIds } = useToSelectOfFetchUserIds({ selectUserIds, fetchUsersAsync });
-  const userTableHeaders = ["№", "Username", "Group", "Created", "Actions"];
+  const userTableHeaders = [
+    { title: "№" },
+    { title: "Username" },
+    { title: "Group" },
+    { title: "Created", classes: "d-none d-md-flex" },
+    { title: "Actions" },
+  ];
 
   return (
     <ContentList
@@ -41,7 +47,7 @@ export const UserExcerpt = ({ entityId, index }: entityExcerptProps) => {
       <Col className="col-auto">{index + 1}</Col>
       <Col className="d-flex justify-content-end">{user?.username}</Col>
       <Col className="d-flex justify-content-end">{user?.groupName}</Col>
-      <Col className="d-flex justify-content-end">
+      <Col className="d-none d-md-flex justify-content-end">
         <TimeAgo timeStamp={user?.created}></TimeAgo>
       </Col>
       <Col className="d-flex justify-content-end">

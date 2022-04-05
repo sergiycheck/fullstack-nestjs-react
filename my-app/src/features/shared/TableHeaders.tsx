@@ -5,17 +5,21 @@ export const TableHeader = ({
   headers,
   rowClassName,
 }: {
-  headers: string[];
+  headers: { title: string; classes?: string }[];
   rowClassName: string;
 }) => {
   return (
     <Row className={classNames(rowClassName, "justify-content-between")}>
       {headers.map((header, index) => (
         <Col
-          className={classNames(index === 0 ? "col-auto" : "", "d-flex justify-content-end")}
+          className={classNames(
+            index === 0 ? "col-auto" : "",
+            "d-flex justify-content-end",
+            header?.classes
+          )}
           key={index}
         >
-          <strong>{header}</strong>
+          <strong>{header.title}</strong>
         </Col>
       ))}
     </Row>
