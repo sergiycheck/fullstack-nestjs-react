@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Routes, Route, Outlet, useNavigate, useLocation } from "react-router-dom";
-import { Container, Row, Tabs, Tab } from "react-bootstrap";
+import { Container, Tabs, Tab } from "react-bootstrap";
 import "./App.scss";
 import { Users } from "./features/users/Users";
 import { Groups } from "./features/groups/Groups";
@@ -28,18 +28,16 @@ const AppContent = () => {
   return (
     <div className="page">
       <header className="page__header">
-        <div className="container">
+        <div className="container-md">
           <NavBarWrapper />
         </div>
       </header>
       <main className="page__body">
-        <Container>
-          <Row>
-            <Outlet></Outlet>
-          </Row>
+        <Container fluid="md" className="full-height-on-small">
+          <Outlet></Outlet>
         </Container>
       </main>
-      <footer className="page__footer">footer content</footer>
+      <footer className="page__footer border-top p-2"></footer>
     </div>
   );
 };

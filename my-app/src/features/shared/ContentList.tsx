@@ -1,6 +1,7 @@
 import { Button, Col, Row } from "react-bootstrap";
 import { EntityId } from "@reduxjs/toolkit";
 import { Link } from "react-router-dom";
+import "./ContentList.scss";
 
 export const ContentList = ({
   entityIds,
@@ -20,13 +21,13 @@ export const ContentList = ({
   });
   return (
     <Row className="list-content justify-content-between">
-      <Col sm={9} md={10} className="order-sm-max-2  col-12">
+      <Col md={10}>
         {renderGetHeaders()}
         {renderedContentEntities}
       </Col>
 
-      <Col sm={3} md={2} className="order-sm-max-1 col-12 ">
-        <Button variant="outline-primary">
+      <Col md={2} className="fixed-on-sm d-flex">
+        <Button variant="outline-primary" className="align-self-start flex-shrink-0 bg-white">
           <Link className="link" to={linkPath}>
             {linkText}
           </Link>
