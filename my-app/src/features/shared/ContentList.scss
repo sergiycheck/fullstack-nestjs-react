@@ -1,11 +1,15 @@
 @import "src/_variables.scss";
 
+$fixed-on-sm-break-point: $middle-break-point - 1px;
+
 .list-content {
   margin-bottom: 4rem;
 
   @media (max-width: $middle-break-point) {
     flex-grow: 1;
+  }
 
+  @media (max-width: $fixed-on-sm-break-point) {
     .fixed-on-sm {
       position: fixed;
       display: flex;
@@ -15,6 +19,17 @@
       .btn {
         z-index: 1;
       }
+    }
+  }
+
+  .table-content-wrapper {
+    white-space: nowrap;
+    @media (max-width: $middle-break-point) {
+      overflow-x: auto;
+    }
+
+    .table-content-data {
+      min-width: $table-content-data-min-width;
     }
   }
 

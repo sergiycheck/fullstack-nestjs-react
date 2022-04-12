@@ -20,13 +20,15 @@ export const ContentList = ({
     return renderGetEntities(entityId, entityId, index);
   });
   return (
-    <Row className="list-content justify-content-between">
-      <Col md={10}>
-        {renderGetHeaders()}
-        {renderedContentEntities}
+    <Row className="list-content gx-md-1">
+      <Col md={9} sm={12} className="table-content-wrapper">
+        <div className="table-content-data">
+          {renderGetHeaders()}
+          {renderedContentEntities}
+        </div>
       </Col>
 
-      <Col md={2} className="fixed-on-sm d-flex">
+      <Col md={2} sm={12} className="fixed-on-sm d-flex mx-auto justify-content-end">
         <Button variant="outline-primary" className="align-self-start flex-shrink-0 bg-white">
           <Link className="link" to={linkPath}>
             {linkText}

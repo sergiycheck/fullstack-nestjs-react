@@ -16,7 +16,7 @@ export const Groups = () => {
   const userTableHeaders = [
     { title: "№" },
     { title: "Name" },
-    { title: "Description", classes: "d-none d-md-flex" },
+    { title: "Description" },
     { title: "Members" },
     { title: "Actions" },
   ];
@@ -46,7 +46,7 @@ const GroupExcerpt = ({ entityId, index }: entityExcerptProps) => {
     <Row className="mb-1 row-cols-5 justify-content-between">
       <Col className="col-auto">{index + 1}</Col>
       <Col className="d-flex justify-content-end">{group?.name}</Col>
-      <Col className="d-none d-md-flex justify-content-end">{group?.description}</Col>
+      <Col className="d-flex justify-content-end">{group?.description}</Col>
       <Col className="d-flex justify-content-end">
         {group?.userIds?.length ? group.userIds?.length : "empty group"}
       </Col>
